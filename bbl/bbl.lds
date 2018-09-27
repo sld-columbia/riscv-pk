@@ -22,7 +22,7 @@ SECTIONS
   }
 
   /* text: Program code section */
-  .text : 
+  .text :
   {
     *(.text)
     *(.text.*)
@@ -30,7 +30,7 @@ SECTIONS
   }
 
   /* rodata: Read-only data */
-  .rodata : 
+  .rodata :
   {
     *(.rdata)
     *(.rodata)
@@ -62,7 +62,7 @@ SECTIONS
    _fdata = .;
 
   /* data: Writable data */
-  .data : 
+  .data :
   {
     *(.data)
     *(.data.*)
@@ -89,8 +89,9 @@ SECTIONS
 
   /* bss: Uninitialized writeable data section */
   . = .;
+  . = ALIGN(8);
   _bss_start = .;
-  .bss : 
+  .bss :
   {
     *(.bss)
     *(.bss.*)
@@ -98,6 +99,8 @@ SECTIONS
     *(.gnu.linkonce.b.*)
     *(COMMON)
   }
+  . = ALIGN(8);
+  _bss_end = .;
 
   .sbi :
   {

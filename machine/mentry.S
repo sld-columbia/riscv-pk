@@ -3,6 +3,7 @@
 #include "mtrap.h"
 #include "bits.h"
 #include "config.h"
+.weak _bss_end
 
   .data
   .align 6
@@ -32,6 +33,7 @@ trap_table:
 
   .option norvc
   .section .text.init,"ax",@progbits
+
   .globl reset_vector
 reset_vector:
   j do_reset
@@ -267,6 +269,16 @@ do_reset:
   slli a2, a3, RISCV_PGSHIFT
   add sp, sp, a2
 
+  # clear .bss section
+  la t0, _bss_start
+  la t1, _bss_end
+.Lbss_clear_init:
+  beq t0, t1, .Lbss_clear_end
+  sd zero, 0(t0)
+  addi t0, t0, 8
+  j .Lbss_clear_init
+
+.Lbss_clear_end:
   # Boot on the first hart
   beqz a3, init_first_hart
 
