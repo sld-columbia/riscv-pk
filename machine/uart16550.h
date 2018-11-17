@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-extern volatile uint8_t* uart16550;
+extern volatile uint32_t* uart16550;
 
 void uart16550_putchar(uint8_t ch);
 int uart16550_getchar();
