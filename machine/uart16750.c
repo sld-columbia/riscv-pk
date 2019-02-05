@@ -4,7 +4,7 @@
 #include "uart16750.h"
 #include "fdt.h"
 
-volatile uint8_t* uart16750;
+volatile uint32_t* uart16750;
 
 #define UART_REG_QUEUE     0
 #define UART_REG_LINESTAT  5
