@@ -17,6 +17,7 @@ machine_hdrs = \
   uart16750.h \
   uart16550.h \
   uart_lite.h \
+  apbuart.h \
   finisher.h \
   unprivileged_memory.h \
   vm.h \
@@ -34,6 +35,7 @@ machine_c_srcs = \
   uart16750.c \
   uart16550.c \
   uart_lite.c \
+  apbuart.c \
   finisher.c \
   misaligned_ldst.c \
   flush_icache.c \

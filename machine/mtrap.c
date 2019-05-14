@@ -10,6 +10,7 @@
 #include "uart16550.h"
 #include "uart16750.h"
 #include "uart_lite.h"
+#include "apbuart.h"
 #include "finisher.h"
 #include "fdt.h"
 #include "unprivileged_memory.h"
@@ -27,6 +28,8 @@ static uintptr_t mcall_console_putchar(uint8_t ch)
 {
   if (uart_lite) {
     uart_lite_putchar(ch);
+  } else if (apbuart) {
+    apbuart_putchar(ch);
   } else if (uart) {
     uart_putchar(ch);
   } else if (uart16550) {
@@ -74,6 +77,8 @@ static uintptr_t mcall_console_getchar()
 {
   if (uart_lite) {
     return uart_lite_getchar();
+  } else if (apbuart) {
+    return apbuart_getchar();
   } else if (uart) {
     return uart_getchar();
   } else if (uart16550) {
