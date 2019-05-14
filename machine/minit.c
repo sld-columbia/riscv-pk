@@ -100,6 +100,7 @@ static void hart_init()
 #ifndef BBL_BOOT_MACHINE
   delegate_traps();
 #endif /* BBL_BOOT_MACHINE */
+  setup_pmp();
 }
 
 static void plic_init()
@@ -131,7 +132,8 @@ static void hart_plic_init()
   if (!plic_ndevs)
     return;
 
-  size_t ie_words = plic_ndevs / sizeof(uintptr_t) + 1;
+  size_t ie_words = (plic_ndevs + 8 * sizeof(uintptr_t) - 1) /
+		(8 * sizeof(uintptr_t));
   for (size_t i = 0; i < ie_words; i++) {
      if (HLS()->plic_s_ie) {
         // Supervisor not always present
@@ -190,25 +192,22 @@ void init_other_hart(uintptr_t hartid, uintptr_t dtb)
   boot_other_hart(dtb);
 }
 
-static inline void setup_pmp(void)
+void setup_pmp(void)
 {
   // Set up a PMP to permit access to all of memory.
   // Ignore the illegal-instruction trap if PMPs aren't supported.
   uintptr_t pmpc = PMP_NAPOT | PMP_R | PMP_W | PMP_X;
-  uintptr_t pmpa = ((uintptr_t)1 << (__riscv_xlen == 32 ? 31 : 53)) - 1;
   asm volatile ("la t0, 1f\n\t"
                 "csrrw t0, mtvec, t0\n\t"
                 "csrw pmpaddr0, %1\n\t"
                 "csrw pmpcfg0, %0\n\t"
                 ".align 2\n\t"
                 "1: csrw mtvec, t0"
-                : : "r" (pmpc), "r" (pmpa) : "t0");
+                : : "r" (pmpc), "r" (-1UL) : "t0");
 }
 
 void enter_supervisor_mode(void (*fn)(uintptr_t), uintptr_t arg0, uintptr_t arg1)
 {
-  setup_pmp();
-
   uintptr_t mstatus = read_csr(mstatus);
   mstatus = INSERT_FIELD(mstatus, MSTATUS_MPP, PRV_S);
   mstatus = INSERT_FIELD(mstatus, MSTATUS_MPIE, 0);
@@ -228,8 +227,6 @@ void enter_supervisor_mode(void (*fn)(uintptr_t), uintptr_t arg0, uintptr_t arg1
 
 void enter_machine_mode(void (*fn)(uintptr_t, uintptr_t), uintptr_t arg0, uintptr_t arg1)
 {
-  setup_pmp();
-
   uintptr_t mstatus = read_csr(mstatus);
   mstatus = INSERT_FIELD(mstatus, MSTATUS_MPIE, 0);
   write_csr(mstatus, mstatus);
