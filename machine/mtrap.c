@@ -9,6 +9,7 @@
 #include "uart.h"
 #include "uart16550.h"
 #include "uart_litex.h"
+#include "apbuart.h"
 #include "finisher.h"
 #include "fdt.h"
 #include "unprivileged_memory.h"
@@ -24,7 +25,9 @@ void __attribute__((noreturn)) bad_trap(uintptr_t* regs, uintptr_t dummy, uintpt
 
 static uintptr_t mcall_console_putchar(uint8_t ch)
 {
-  if (uart) {
+  if (apbuart) {
+    apbuart_putchar(ch);
+  } else if (uart) {
     uart_putchar(ch);
   } else if (uart16550) {
     uart16550_putchar(ch);
@@ -68,7 +71,10 @@ static void send_ipi(uintptr_t recipient, int event)
 
 static uintptr_t mcall_console_getchar()
 {
-  if (uart) {
+
+  if (apbuart) {
+    return apbuart_getchar();
+  } else if (uart) {
     return uart_getchar();
   } else if (uart16550) {
     return uart16550_getchar();

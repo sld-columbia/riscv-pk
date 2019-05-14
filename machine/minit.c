@@ -8,6 +8,7 @@
 #include "uart.h"
 #include "uart16550.h"
 #include "uart_litex.h"
+#include "apbuart.h"
 #include "finisher.h"
 #include "disabled_hart_mask.h"
 #include "htif.h"
@@ -174,6 +175,7 @@ void init_first_hart(uintptr_t hartid, uintptr_t dtb)
   query_uart(dtb);
   query_uart16550(dtb);
   query_uart_litex(dtb);
+  query_apbuart(dtb);
   query_htif(dtb);
   printm("bbl loader\r\n");
 
